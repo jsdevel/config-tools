@@ -18,4 +18,4 @@ $PROJECT_ROOT/ |
                             
 ``````                      
 Any "*.json$" file within the config directory  can be loaded by config-tools, no matter
-where you are witin your project.
+where you are within your project.
