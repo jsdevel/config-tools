@@ -48,8 +48,8 @@ module.exports = {
                getFileName(configFileName[i]),
                (function(i){
                   var j;
-                  return function(object){
-                     configs[i] = object;
+                  return function(result){
+                     configs[i] = result;
                      if(i+1 === len){
                         if(hasMissingConfig){
                            log("Aborting because there were missing configs: ");
@@ -93,7 +93,7 @@ module.exports = {
  * @param {string} baseDir The base directory to begin the search.
  * @param {string} fileName The name of the config file to search for.  Config
  * files end in ".json$".
- * @param {function(Object)} fnFound Accepts the absolute path of the
+ * @param {function(string,Object)} fnFound Accepts the absolute path of the
  * config file, and the resulting config JSON object.
  * @param {function(string)} fnNotFound Accepts the absolute path of the config
  * file.
@@ -104,7 +104,8 @@ module.exports = {
 function getConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
    var path = require('path');
    var fs   = require('fs');
-   var pathToConfig = path.join(baseDir, 'config', fileName);
+   var pathToConfigDir = path.join(baseDir, 'config');
+   var pathToConfig = path.join(pathToConfigDir, fileName);
    var configObj;
    fs.stat(pathToConfig, function(err){
       var i = (typeof timesCalled === 'number') ? timesCalled + 1 : 0;
@@ -127,13 +128,17 @@ function getConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
             configObj = require(pathToConfig);
             if(
                configObj &&
-               handleCallbackSafely(fnFound, configObj)
+               handleCallbackSafely(fnFound, {
+                  dir:pathToConfigDir,
+                  path:pathToConfig,
+                  config:configObj
+               })
             ){
                return;
             }
          } catch(e){
-            log(fileName+" was found, but the following error occurred while"+
-            "parsing it's contents:\n"+e);
+            log(pathToConfig+" was found, but the following error occurred "+
+            "while parsing it's contents:\n"+e);
          }
       }
       handleCallbackSafely(fnNotFound, fileName);
