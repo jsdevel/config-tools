@@ -1,0 +1,25 @@
+{
+  "name": "config-tools",
+  "version": "0.0.0",
+  "description": "simple configuration tools for node environments",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jsdevel/config-tools"
+  },
+  "keywords": [
+    "config",
+    "tools",
+    "project"
+  ],
+  "author": "Joseph Spencer",
+  "license": "Apache 2.0",
+  "readmeFilename": "README.md",
+  "gitHead": "a04fa13411f12c2e60f3229c472d6152e595b63a",
+  "bugs": {
+    "url": "https://github.com/jsdevel/config-tools/issues"
+  }
+}
