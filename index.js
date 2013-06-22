@@ -182,8 +182,16 @@ function Logger(name, obj){
    var logging;
    name = (""+name).replace(/.json$/, "");
    this.debug=function(){};
-   this.error=function(){};
-   this.warn=function(){};
+   this.error=function(msg){
+      this.log("ERROR - "+msg);
+   };
+   this.info=function(msg){
+      this.log("INFO  - "+msg);
+   };
+   this.warn=function(msg){
+      this.log("WARN  - "+msg);
+   };
+
    if(obj && typeof obj === 'object' && obj.logging){
       logging = obj.logging;
       if(!!logging.debug){
@@ -191,15 +199,14 @@ function Logger(name, obj){
             this.log("DEBUG - "+msg);
          };
       }
-      if(!!logging.error){
-         this.error=function(msg){
-            this.log("ERROR - "+msg);
-         };
+      if((typeof logging.error === 'boolean') && !logging.error){
+         this.error=function(){};
       }
-      if(!!logging.warn){
-         this.warn=function(msg){
-            this.log("WARN - "+msg);
-         };
+      if((typeof logging.info === 'boolean') && !logging.info){
+         this.info=function(){};
+      }
+      if((typeof logging.warn === 'boolean') && !logging.warn){
+         this.warn=function(){};
       }
    }
    this.log=function(msg){
