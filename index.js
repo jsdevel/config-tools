@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var log = new Logger('config-tools');
+var logger = new Logger('config-tools');
+var log = logger.log;
 module.exports = {
    /** find a config file, starting in the user's directory searching upward if
     * necessary searching for the file in all config directories.
