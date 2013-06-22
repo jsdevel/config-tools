@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+var log = new Logger('config-tools');
 module.exports = {
    /** find a config file, starting in the user's directory searching upward if
     * necessary searching for the file in all config directories.
@@ -131,7 +131,8 @@ function getConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
                handleCallbackSafely(fnFound, {
                   dir:pathToConfigDir,
                   path:pathToConfig,
-                  config:configObj
+                  config:configObj,
+                  logger:new Logger(fileName, configObj)
                })
             ){
                return;
@@ -141,7 +142,7 @@ function getConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
             "while parsing it's contents:\n"+e);
          }
       }
-      handleCallbackSafely(fnNotFound, fileName);
+      handleCallbackSafely(fnNotFound, fileName, new Logger(fileName));
    });
 }
 
@@ -162,10 +163,6 @@ function handleCallbackSafely(fn){
    }
 }
 
-function log(msg){
-   console.log(msg);
-}
-
 /**
  *
  * @param {string} name
@@ -178,4 +175,33 @@ function getFileName(name){
    return /\.json$/i.test(name) ?
                   name :
                   name + ".json";
+}
+
+function Logger(name, obj){
+   var logging;
+   name = (""+name).replace(/.json$/, "");
+   this.debug=function(){};
+   this.error=function(){};
+   this.warn=function(){};
+   if(obj && typeof obj === 'object' && obj.logging){
+      logging = obj.logging;
+      if(!!logging.debug){
+         this.debug=function(msg){
+            this.log("DEBUG - "+msg);
+         };
+      }
+      if(!!logging.error){
+         this.error=function(msg){
+            this.log("ERROR - "+msg);
+         };
+      }
+      if(!!logging.warn){
+         this.warn=function(msg){
+            this.log("WARN - "+msg);
+         };
+      }
+   }
+   this.log=function(msg){
+      console.log(name+": "+msg);
+   };
 }
