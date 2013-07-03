@@ -15,6 +15,7 @@
  */
 var logger = new Logger('config-tools');
 var log = logger.log;
+var err = logger.error;
 module.exports = {
    /** find a config file, starting in the user's directory searching upward if
     * necessary searching for the file in all config directories.
@@ -31,15 +32,19 @@ module.exports = {
       var len,i;
 
       if(!configFileName){
-         log("No configFileName given.  configFileName must be an array, or"+
-              " a string.");
+         err(
+            "No configFileName given.  configFileName must be an array, or"+
+            " a string."
+         );
          return;
       }
 
       if(configFileName instanceof Array){
          len = configFileName.length;
          if(!len){
-            log("No configFileNames in array.");
+            err(
+               "No configFileNames in array."
+            );
             return;
          }
          configs.length = len;
@@ -114,7 +119,7 @@ function getConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
          switch(err.errno){
          case 34:
             if(i > 50){
-               log(
+               err(
                   "Couldn't find 'config/"+fileName+"' in any parent directory."
                );
                break;
@@ -122,9 +127,9 @@ function getConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
             getConfig(path.dirname(baseDir), fileName, fnFound, fnNotFound, i);
             return;
          default:
-            log("The following error occurred while trying to find: "+
+            err("The following error occurred while trying to find: "+
             path.join(baseDir, fileName)+".  Exiting...");
-            log(err);
+            err(err);
          }
       } else {
          try {
@@ -141,7 +146,7 @@ function getConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
                return;
             }
          } catch(e){
-            log(pathToConfig+" was found, but the following error occurred "+
+            err(pathToConfig+" was found, but the following error occurred "+
             "while parsing it's contents:\n"+e);
          }
       }
@@ -161,7 +166,9 @@ function handleCallbackSafely(fn){
       fn.apply(fn, args);
       return true;
    } catch(e){
-      log("The following error occurred while executing the callback: "+e);
+      err(
+         "The following error occurred while executing the callback: "+e
+      );
       return false;
    }
 }
