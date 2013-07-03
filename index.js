@@ -22,7 +22,7 @@ module.exports = {
     *
     * @param {Array|string} configFileName
     * @param {function(Object)} fnFound
-    * @param {string} fnNotFound
+    * @param {function(string, Logger)} fnNotFound
     * @param {number=} maxTimesToCall
     */
    getConfig:function(configFileName, fnFound, fnNotFound, maxTimesToCall){
@@ -30,6 +30,29 @@ module.exports = {
       var configs = [];
       var hasMissingConfig = false;
       var len,i;
+      var isFnFoundAFunction = typeof fnFound === 'function';
+      var isFnNotFoundAFunction = typeof fnNotFound === 'function';
+
+      if(!isFnFoundAFunction && !isFnNotFoundAFunction){
+         err("No callback specified.  You must specify a callback.");
+         return;
+      }
+
+      if(!isFnFoundAFunction){
+         fnFound = function(fileName, logger){
+            logger.warn("The config file: '"+fileName+"' was found, "+
+               "but no callback was registered for this event."
+            );
+         };
+      }
+
+      if(!isFnNotFoundAFunction){
+         fnNotFound = function(fileName, logger){
+            logger.warn("The config file: '"+fileName+"' wasn't found, "+
+               "and no callback was registered for this event."
+            );
+         };
+      }
 
       if(!configFileName){
          err(
@@ -58,8 +81,8 @@ module.exports = {
                      configs[i] = result;
                      if(i+1 === len){
                         if(hasMissingConfig){
-                           log("Aborting because there were missing configs: ");
-                           log(configs);
+                           err("Aborting because there were missing configs: ");
+                           err(configs);
                            return;
                         } else {
                            for(j=0;j<len;j++){
@@ -73,10 +96,10 @@ module.exports = {
                   };
                })(i),
                (function(i){
-                  return function(string){
+                  return function(fileName, logger){
                      configs[i] = null;
                      hasMissingConfig = true;
-                     fnNotFound(string);
+                     fnNotFound(fileName, logger);
                   };
                })(i)
             );
@@ -113,10 +136,10 @@ function getConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
    var pathToConfigDir = path.join(baseDir, 'config');
    var pathToConfig = path.join(pathToConfigDir, fileName);
    var configObj;
-   fs.stat(pathToConfig, function(err){
+   fs.stat(pathToConfig, function(e){
       var i = (typeof timesCalled === 'number') ? timesCalled + 1 : 0;
-      if(err){
-         switch(err.errno){
+      if(e){
+         switch(e.errno){
          case 34:
             if(i > 50){
                err(
@@ -129,7 +152,7 @@ function getConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
          default:
             err("The following error occurred while trying to find: "+
             path.join(baseDir, fileName)+".  Exiting...");
-            err(err);
+            err(e);
          }
       } else {
          try {
@@ -189,23 +212,24 @@ function getFileName(name){
 
 function Logger(name, obj){
    var logging;
+   var instance=this;
    name = (""+name).replace(/.json$/, "");
    this.debug=function(){};
    this.error=function(msg){
-      this.log("ERROR - "+msg);
+      instance.log("ERROR - "+msg);
    };
    this.info=function(msg){
-      this.log("INFO  - "+msg);
+      instance.log("INFO  - "+msg);
    };
    this.warn=function(msg){
-      this.log("WARN  - "+msg);
+      instance.log("WARN  - "+msg);
    };
 
    if(obj && typeof obj === 'object' && obj.logging){
       logging = obj.logging;
       if(!!logging.debug){
          this.debug=function(msg){
-            this.log("DEBUG - "+msg);
+            instance.log("DEBUG - "+msg);
          };
       }
       if((typeof logging.error === 'boolean') && !logging.error){
