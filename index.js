@@ -114,7 +114,9 @@ function getConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
          switch(err.errno){
          case 34:
             if(i > 50){
-               log("Couldn't find '"+fileName+"' in any parent directory");
+               log(
+                  "Couldn't find 'config/"+fileName+"' in any parent directory."
+               );
                break;
             }
             getConfig(path.dirname(baseDir), fileName, fnFound, fnNotFound, i);
