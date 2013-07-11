@@ -1,6 +1,6 @@
 {
   "name": "config-tools",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "simple configuration tools for node environments",
   "main": "index.js",
   "scripts": {

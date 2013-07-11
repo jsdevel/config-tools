@@ -191,9 +191,7 @@ function handleCallbackSafely(fn){
       fn.apply(fn, args);
       return true;
    } catch(e){
-      err(
-         "The following error occurred while executing the callback: "+e
-      );
+      err(""+e);
       return false;
    }
 }
