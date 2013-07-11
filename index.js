@@ -22,7 +22,7 @@ module.exports = {
     *
     * @param {Array|string} configFileName
     * @param {function(Object)} fnFound
-    * @param {function(string, Logger)} fnNotFound
+    * @param {function(string, Logger, boolean)} fnNotFound
     * @param {number=} maxTimesToCall
     */
    getConfig:function(configFileName, fnFound, fnNotFound, maxTimesToCall){
@@ -96,10 +96,10 @@ module.exports = {
                   };
                })(i),
                (function(i){
-                  return function(fileName, logger){
+                  return function(fileName, logger, isFound){
                      configs[i] = null;
                      hasMissingConfig = true;
-                     fnNotFound(fileName, logger);
+                     fnNotFound(fileName, logger, !!isFound);
                   };
                })(i)
             );
@@ -138,6 +138,7 @@ function getConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
    var configObj;
    fs.stat(pathToConfig, function(e){
       var i = (typeof timesCalled === 'number') ? timesCalled + 1 : 0;
+      var isFound=false;
       if(e){
          switch(e.errno){
          case 34:
@@ -155,6 +156,7 @@ function getConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
             err(e);
          }
       } else {
+         isFound=true;
          try {
             configObj = require(pathToConfig);
             if(
@@ -173,7 +175,7 @@ function getConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
             "while parsing it's contents:\n"+e);
          }
       }
-      handleCallbackSafely(fnNotFound, fileName, new Logger(fileName));
+      handleCallbackSafely(fnNotFound, fileName, new Logger(fileName), isFound);
    });
 }
 
